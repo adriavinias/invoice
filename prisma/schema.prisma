@@ -9,9 +9,56 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Product {
-  id String @id @default(cuid())
+model Products {
+  id  String  @id @default(cuid())
   name  String
-  description String
   price Int
+  invoice ProductsOnInvoices[]
+}
+
+model Person {
+  id  String  @id @default(cuid())
+  name  String
+  vat String
+  nif String
+  address String
+  mail  String  @unique
+  tlf String
+  role  Role
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Invoices {
+  id  String  @id @default(cuid())
+  invoice_number  Int  @default(autoincrement())
+  userId  String
+  customerId  String
+  products  ProductsOnInvoices[]
+  total Int
+  status  Status  @default(PAID)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model ProductsOnInvoices {
+  product Products  @relation(fields:[productId], references: [id])
+  productId String
+  invoice Invoices  @relation(fields:[invoiceId], references: [id])
+  invoiceId String
+  qty Int
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([productId, invoiceId])
+}
+
+enum Status {
+  PAID
+  PENDING
+}
+
+enum Role {
+  SELLER
+  CUSTOMER
 }
